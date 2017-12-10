@@ -3,101 +3,51 @@ import org.openkinect.freenect2.*;
 import org.openkinect.processing.*;
 import org.openkinect.tests.*;
 
-int quantity = 1000;
-Snow[] flakes = new Snow[1000];
-int Bx = 256;
-int By = 212;
-int r = 50;
-
+int quantity = 300;
+float [] xPosition = new float[quantity];
+float [] yPosition = new float[quantity];
+int [] flakeSize = new int[quantity];
+int [] direction = new int[quantity];
+int minFlakeSize = 1;
+int maxFlakeSize = 5;
 
 void setup() {
-  size (512, 424);
-  for (int i = 0; i<flakes.length; i++) { 
-    flakes[i] = new Snow (round(random(5, 10)));
-    flakes[i].spreadY(i);
-
+  
+  size(512, 424);
+  frameRate(30);
+  noStroke();
+  smooth();
+  
+  for(int i = 0; i < quantity; i++) {
+    flakeSize[i] = round(random(minFlakeSize, maxFlakeSize));
+    xPosition[i] = random(0, width);
+    yPosition[i] = random(0, height);
+    direction[i] = round(random(0, 1));
   }
-
+  
 }
 
 void draw() {
-  background(0); 
-  ellipse(Bx,By,50,50);
-  for (int i = 0; i < flakes.length; i++) {
-    flakes[i] .display();
-  if (flakes[i].x > 256 && flakes[i].y >445 && flakes[i].x<400){
-    flakes[i].bounce();  
-  }
-
-  if ((flakes[i].x >231 && flakes[i].x <281) && flakes[i].y >= 237){
-    flakes[i].collision();
-    flakes[i].boundaryCheck();
-
-   
-  }
-flakes[i].boundaryCheck();
-  }
-  }
-
-
-
-
-class Snow {
-  float x; 
-  float y;
-  float diameter;
-  float speed = random(1, 5);
-  float descentX;
-  int col = 255; 
   
-  Snow (float tempD) {
-    x = random(-50, width+50);
-    y = random(0,40);
-    diameter = tempD;
-  }
+background(0);
   
-  void spreadY(int i) {
-    y = y - i*3;
-  }
-  
-  void display() {
-  
-    noStroke();
-    fill(col);
-    ellipse(x, y, diameter, diameter);
-    y = y + speed;
-    x = x + descentX;
-  }
+  for(int i = 0; i < xPosition.length; i++) {
     
-    //checking the boundary
-    void boundaryCheck(){
-    float h = random(237,282);
-    float v = random(1,50);
-    if (y > height) {
-      y = -diameter;
+    ellipse(xPosition[i], yPosition[i], flakeSize[i], flakeSize[i]);
+    
+    if(direction[i] == 0) {
+      xPosition[i] += map(flakeSize[i], minFlakeSize, maxFlakeSize, .1, .5);
+    } else {
+      xPosition[i] -= map(flakeSize[i], minFlakeSize, maxFlakeSize, .1, .5);
     }
-    if (x < 0-50) {
-      x = width+diameter;} 
-      else if (x > width+50){
-      x = h;
+    
+    yPosition[i] += flakeSize[i] + direction[i] + 50; 
+    
+    if(xPosition[i] > width + flakeSize[i] || xPosition[i] < -flakeSize[i] || yPosition[i] > height + flakeSize[i]) {
+      xPosition[i] = random(0, width);
+      yPosition[i] = -flakeSize[i];
     }
-     if (y<width+diameter && (x==281 || x==237)){
-    x -= v;
+    
   }
-  }
-  void bounce(){
-    y = y - speed; 
-}
-  void collision(){
-
-  if (x>=256){
-  y += 2;
-  x += 2;
-  }else{
-  y-= 2;
-  x -= 2;
-  }
- 
-  }
-}
   
+}
